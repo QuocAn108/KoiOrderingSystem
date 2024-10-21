@@ -1,0 +1,33 @@
+name: ASP.NET Core CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2  # Lấy code từ repository
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'  # Cấu hình phiên bản .NET
+
+    - name: Restore dependencies
+      run: dotnet restore  # Khôi phục các dependency từ các file .csproj
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore  # Build ứng dụng
+
+    - name: Run tests
+      run: dotnet test --no-restore --verbosity normal  # Chạy các bài kiểm tra đơn vị (unit tests)
+
+    # Tùy chọn: Triển khai sau khi build thành công
+    - name: Deploy to Azure
+      run: |
+        az webapp deployment source config-zip --resource-group <resource_group> --name <app_name> --src ./publish.zip
