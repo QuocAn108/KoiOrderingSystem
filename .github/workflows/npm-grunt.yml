@@ -1,0 +1,47 @@
+name: NodeJS with Grunt
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+    - uses: actions/checkout@v2  # Checkout code từ repo
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install Grunt CLI
+      run: npm install -g grunt-cli  # Cài đặt grunt-cli nếu cần
+
+    - name: Lint code with ESLint
+      run: grunt eslint  # Kiểm tra chất lượng mã bằng ESLint
+
+    - name: Run unit tests
+      run: grunt mochaTest  # Chạy các unit test
+
+    - name: Build and optimize project
+      run: |
+        grunt concat      # Gộp file JS
+        grunt uglify      # Nén JS
+        grunt cssmin      # Nén CSS
+        grunt imagemin    # Tối ưu hình ảnh
+
+    # Tùy chọn: Triển khai sau khi build thành công
+    - name: Deploy to production (optional)
+      run: |
+        echo "Deployment steps here"
